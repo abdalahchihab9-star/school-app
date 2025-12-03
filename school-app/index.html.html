@@ -1,0 +1,1471 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام إدارة النقاط المدرسية</title>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box;}
+        body { 
+            font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif; 
+            background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); 
+            min-height:100vh; 
+            padding:20px; 
+            color:#333;
+            transition: all 0.3s ease;
+        }
+        [dir="ltr"] { direction: ltr; }
+        [dir="rtl"] { direction: rtl; }
+        .container { 
+            max-width:1400px; 
+            margin:0 auto; 
+            background:white; 
+            border-radius:15px; 
+            box-shadow:0 10px 40px rgba(0,0,0,0.2); 
+            overflow:hidden;
+        }
+        .header { 
+            background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); 
+            color:white; 
+            padding:30px 20px; 
+            text-align:center; 
+            border-bottom:5px solid #333;
+            position: relative;
+        }
+        .header h1 { 
+            font-size:clamp(20px, 5vw, 30px); 
+            margin-bottom:10px; 
+            font-weight:700;
+        }
+        .header p { 
+            font-size:clamp(13px, 3vw, 15px); 
+            opacity:0.95;
+        }
+
+        /* Language & Term Selector Bar */
+        .top-bar {
+            background: rgba(255,255,255,0.1);
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .term-selector-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+            min-width: 250px;
+        }
+        .term-selector-wrapper label {
+            font-size: 14px;
+            font-weight: 600;
+            color: white;
+            white-space: nowrap;
+        }
+        .term-selector {
+            flex: 1;
+            padding: 10px 15px;
+            border: 2px solid white;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            background: white;
+            color: #667eea;
+            cursor: pointer;
+            min-width: 180px;
+        }
+        .language-switcher {
+            display: flex;
+            gap: 8px;
+            background: rgba(255,255,255,0.2);
+            padding: 5px;
+            border-radius: 20px;
+        }
+        .lang-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 15px;
+            background: transparent;
+            color: white;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .lang-btn:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        .lang-btn.active {
+            background: white;
+            color: #667eea;
+        }
+
+        .school-settings { 
+            background:#f8f9fa; 
+            padding:20px; 
+            border-bottom:2px solid #dee2e6;
+        }
+        .settings-grid { 
+            display:grid; 
+            grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); 
+            gap:15px;
+        }
+        .settings-input { 
+            width:100%; 
+            padding:12px; 
+            border:2px solid #ddd; 
+            border-radius:8px; 
+            font-size:14px;
+        }
+        .save-settings-btn { 
+            background:#28a745; 
+            color:white; 
+            padding:12px 25px; 
+            border:none; 
+            border-radius:8px; 
+            cursor:pointer; 
+            font-size:15px; 
+            font-weight:600; 
+            margin-top:10px;
+            width: 100%;
+            max-width: 300px;
+        }
+        .save-settings-btn:hover { background:#218838;}
+
+        .class-management { 
+            background:#fff; 
+            padding:20px; 
+            border-bottom:2px solid #dee2e6;
+        }
+        .class-controls { 
+            display:flex; 
+            gap:15px; 
+            flex-wrap:wrap; 
+            align-items:center; 
+            margin-bottom:15px;
+        }
+        .class-selector { 
+            flex:1; 
+            min-width:200px; 
+            padding:12px 20px; 
+            border:2px solid #667eea; 
+            border-radius:8px; 
+            font-size:15px; 
+            font-weight:600; 
+            background:white; 
+            color:#667eea; 
+            cursor:pointer;
+        }
+        .add-class-section { 
+            display:flex; 
+            gap:10px; 
+            flex-wrap:wrap; 
+            padding:15px; 
+            background:#f0f4ff; 
+            border-radius:8px; 
+            margin-top:10px;
+        }
+        .add-class-input { 
+            padding:10px; 
+            border:2px solid #667eea; 
+            border-radius:6px; 
+            font-size:14px; 
+            flex: 1;
+            min-width:200px;
+        }
+        .btn { 
+            padding:10px 20px; 
+            border:none; 
+            border-radius:6px; 
+            cursor:pointer; 
+            font-size:14px; 
+            font-weight:600; 
+            transition:all 0.3s;
+            white-space: nowrap;
+        }
+        .btn-primary { background:#667eea; color:white;}
+        .btn-danger { background:#dc3545; color:white;}
+        .btn-success { background:#28a745; color:white;}
+        .btn-info { background:#17a2b8; color:white;}
+        .btn-warning { background:#ffc107; color:#000;}
+        .btn-secondary { background:#6c757d; color:white;}
+        .btn-light { background:#f8f9fa; color:#333; border:1px solid #dee2e6;}
+
+        .btn-primary:hover { background:#5568d3; }
+        .btn-danger:hover { background:#c82333;}
+        .btn-success:hover { background:#218838;}
+        .btn-info:hover { background:#138496;}
+        .btn-warning:hover { background:#e0a800;}
+        .btn-secondary:hover { background:#5a6268;}
+        .btn-light:hover { background:#e2e6ea;}
+
+        .classes-list { 
+            display:flex; 
+            gap:8px; 
+            flex-wrap:wrap; 
+            margin-top:10px;
+        }
+        .class-tag { 
+            background:#667eea; 
+            color:white; 
+            padding:8px 15px; 
+            border-radius:20px; 
+            font-size:13px; 
+            display:inline-flex; 
+            align-items:center; 
+            gap:8px;
+        }
+        .class-tag button { 
+            background:#fff; 
+            color:#667eea; 
+            border:none; 
+            border-radius:50%; 
+            width:20px; 
+            height:20px; 
+            cursor:pointer; 
+            font-size:12px; 
+            font-weight:bold;
+        }
+
+        .stats { 
+            display:grid; 
+            grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); 
+            gap:15px; 
+            padding:20px; 
+            background:#f8f9fa;
+        }
+        .stat-card { 
+            background:white; 
+            padding:15px; 
+            border-radius:10px; 
+            text-align:center; 
+            border-left:4px solid #667eea; 
+            box-shadow:0 2px 4px rgba(0,0,0,0.1);
+        }
+        [dir="ltr"] .stat-card {
+            border-left: none;
+            border-right: 4px solid #667eea;
+        }
+        .stat-value { 
+            font-size:clamp(22px, 4vw, 28px); 
+            font-weight:700; 
+            color:#667eea; 
+            margin:10px 0;
+        }
+        .stat-label { 
+            font-size:clamp(11px, 2vw, 13px); 
+            color:#666; 
+            text-transform:uppercase;
+        }
+
+        .controls { 
+            padding:20px; 
+            background:#f8f9fa; 
+            display:flex; 
+            gap:10px; 
+            flex-wrap:wrap; 
+            align-items:center; 
+            border-bottom:2px solid #dee2e6;
+        }
+        .search-box { 
+            flex:1; 
+            min-width:200px;
+        }
+        .search-box input { 
+            width:100%; 
+            padding:12px; 
+            border:2px solid #ddd; 
+            border-radius:8px; 
+            font-size:14px;
+        }
+
+        /* Filter section */
+        .filter-section {
+            background:#fff;
+            padding:20px;
+            border-bottom:2px solid #dee2e6;
+        }
+        .filter-section h3 {
+            color:#667eea;
+            margin-bottom:15px;
+            font-size:16px;
+            display:flex;
+            align-items:center;
+            gap:8px;
+        }
+        .filter-buttons {
+            display:flex;
+            gap:10px;
+            flex-wrap:wrap;
+        }
+
+        .table-wrapper { 
+            overflow-x:auto; 
+            padding:20px;
+        }
+        table { 
+            width:100%; 
+            border-collapse:collapse; 
+            margin-top:10px;
+            min-width: 800px;
+        }
+        thead { 
+            background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); 
+            color:white; 
+            font-weight:600;
+        }
+        th { 
+            padding:15px 10px; 
+            text-align:center; 
+            font-size:clamp(12px, 2vw, 14px); 
+            border:1px solid #dee2e6;
+        }
+        td { 
+            padding:12px 10px; 
+            text-align:center; 
+            border:1px solid #dee2e6; 
+            font-size:clamp(11px, 2vw, 13px);
+        }
+        tbody tr { transition:background-color 0.3s;}
+        tbody tr:hover { background-color:#f0f4ff;}
+        tbody tr:nth-child(even) { background-color:#f8f9fa;}
+
+        .name-cell { 
+            text-align:right; 
+            font-weight:500; 
+            color:#333;
+        }
+        [dir="ltr"] .name-cell {
+            text-align: left;
+        }
+
+        /* Editable Score Cell - Direct Input */
+        .editable-score { 
+            display:inline-block; 
+            min-width:50px; 
+            padding:8px 10px; 
+            border-radius:6px; 
+            cursor:pointer; 
+            transition:all 0.3s; 
+            font-weight:600;
+            border: 2px solid transparent;
+        }
+        .editable-score:hover { 
+            background:#f0f4ff;
+            border-color: #667eea;
+        }
+        .editable-score:focus {
+            outline: none;
+            background:#fff;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        .editable-score[contenteditable="true"] {
+            background: #fff;
+            border-color: #667eea;
+        }
+
+        .obs-modern { 
+            display:inline-flex; 
+            align-items:center; 
+            gap:6px; 
+            border-radius:14px; 
+            padding:8px 16px; 
+            font-size:clamp(11px, 2vw, 13px); 
+            font-weight:600;
+        }
+        .obs-excellent { background:linear-gradient(90deg,#43e97b 0,#38f9d7 100%); color:#003a1b;}
+        .obs-verygood { background:linear-gradient(90deg,#fbc2eb 0,#a6c1ee 100%); color:#662381;}
+        .obs-good { background:linear-gradient(90deg,#fad961 0,#f76b1c 100%); color:#7f3e07;}
+        .obs-average { background:linear-gradient(90deg,#ffecd2 0,#fcb69f 100%); color:#af5308;}
+        .obs-poor { background:linear-gradient(90deg,#ff6a6a 0,#db3434 100%); color:#fff;}
+        .obs-modern i { font-style:normal; font-size:16px;}
+
+        .action-btns { 
+            display:flex; 
+            gap:5px; 
+            justify-content:center;
+            flex-wrap: wrap;
+        }
+        .action-btn { 
+            padding:8px 14px; 
+            border:none; 
+            border-radius:6px; 
+            cursor:pointer; 
+            font-size:12px; 
+            font-weight:600;
+        }
+        .btn-edit { background:#ffc107; color:#000;}
+        .btn-edit:hover { background:#e0a800;}
+        .btn-delete { background:#dc3545; color:white;}
+        .btn-delete:hover { background:#c82333;}
+
+        .add-student-section { 
+            background:#f8f9fa; 
+            padding:20px; 
+            border-bottom:2px solid #dee2e6;
+        }
+        .add-student-section h3 { 
+            color:#667eea; 
+            margin-bottom:15px; 
+            font-size:clamp(16px, 3vw, 18px);
+        }
+        .form-row { 
+            display:flex; 
+            gap:10px; 
+            flex-wrap:wrap;
+        }
+        .form-input { 
+            padding:10px; 
+            border:2px solid #ddd; 
+            border-radius:6px; 
+            font-size:14px; 
+            flex:1; 
+            min-width:150px;
+        }
+        .form-input:focus { 
+            outline:none; 
+            border-color:#667eea;
+        }
+
+        .footer { 
+            background:#f8f9fa; 
+            padding:20px; 
+            text-align:center; 
+            border-top:2px solid #dee2e6; 
+            color:#666; 
+            font-size:clamp(11px, 2vw, 13px);
+        }
+        .no-results { 
+            text-align:center; 
+            padding:40px; 
+            color:#999; 
+            font-size:clamp(14px, 3vw, 18px);
+        }
+
+        /* Responsive Improvements */
+        @media (max-width: 768px) {
+            body { padding: 10px; }
+            .header { padding: 20px 15px; }
+            .header h1 { font-size: 20px; }
+            .top-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .term-selector-wrapper {
+                width: 100%;
+            }
+            .language-switcher {
+                justify-content: center;
+                width: 100%;
+            }
+            .stats { 
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+                padding: 15px;
+            }
+            .controls, .filter-section {
+                padding: 15px;
+            }
+            .btn {
+                padding: 8px 12px;
+                font-size: 12px;
+            }
+            .table-wrapper {
+                padding: 10px;
+            }
+            th, td { 
+                padding: 8px 5px; 
+                font-size: 11px;
+            }
+            .editable-score {
+                min-width: 40px;
+                padding: 6px 8px;
+            }
+            .obs-modern {
+                padding: 6px 12px;
+                font-size: 11px;
+            }
+            .action-btn {
+                padding: 6px 10px;
+                font-size: 11px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats {
+                grid-template-columns: 1fr;
+            }
+            .class-controls {
+                flex-direction: column;
+            }
+            .class-selector,
+            .btn {
+                width: 100%;
+            }
+            .filter-buttons {
+                flex-direction: column;
+            }
+            .filter-buttons .btn {
+                width: 100%;
+            }
+        }
+
+        @media print {
+            body {background:white; padding:0;}
+            .controls, .class-management, .add-student-section, .action-btns, .top-bar, .filter-section {display:none;}
+            .container {box-shadow:none; border-radius:0;}
+            .table-wrapper { padding: 0; }
+            table { min-width: auto; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <div class="top-bar">
+            <div class="term-selector-wrapper">
+                <label id="termLabel">📅 الفصل الدراسي:</label>
+                <select id="termSelector" class="term-selector" onchange="switchTerm()">
+                    <option value="term1">الفصل الأول</option>
+                    <option value="term2">الفصل الثاني</option>
+                    <option value="term3" selected>الفصل الثالث</option>
+                </select>
+            </div>
+            <div class="language-switcher">
+                <button class="lang-btn active" onclick="changeLanguage('ar')" data-lang="ar">العربية</button>
+                <button class="lang-btn" onclick="changeLanguage('fr')" data-lang="fr">Français</button>
+                <button class="lang-btn" onclick="changeLanguage('en')" data-lang="en">English</button>
+            </div>
+        </div>
+        <h1 id="mainTitle">📊 نظام إدارة النقاط المدرسية</h1>
+        <p id="headerSubtitle">الفصل الثالث - السنة الدراسية 2024/2025</p>
+    </div>
+
+    <div class="school-settings">
+        <h3 id="settingsTitle" style="color:#667eea; margin-bottom:15px; font-size:18px;">⚙️ إعدادات المدرسة</h3>
+        <div class="settings-grid">
+            <input type="text" id="schoolCountry" class="settings-input" placeholder="الدولة">
+            <input type="text" id="schoolMinistry" class="settings-input" placeholder="الوزارة">
+            <input type="text" id="schoolDirectorate" class="settings-input" placeholder="المديرية">
+            <input type="text" id="schoolName" class="settings-input" placeholder="اسم المدرسة">
+        </div>
+        <button class="save-settings-btn" id="saveSettingsBtn" onclick="saveSchoolSettings()">💾 حفظ الإعدادات</button>
+    </div>
+
+    <div class="class-management">
+        <h3 id="classManagementTitle" style="color:#667eea; margin-bottom:15px; font-size:18px;">🏫 إدارة الأقسام والأفواج</h3>
+        <div class="class-controls">
+            <select id="classSelector" class="class-selector" onchange="switchClass()">
+                <option value="" id="selectClassOption">-- اختر القسم --</option>
+            </select>
+            <button class="btn btn-danger" id="deleteClassBtn" onclick="deleteCurrentClass()">🗑️ حذف القسم الحالي</button>
+        </div>
+        <div class="add-class-section">
+            <input type="text" id="newClassName" class="add-class-input" placeholder="اسم القسم الجديد">
+            <button class="btn btn-primary" id="addClassBtn" onclick="addClass()">➕ إضافة قسم جديد</button>
+        </div>
+        <div class="classes-list" id="classesList"></div>
+    </div>
+
+    <div class="stats">
+        <div class="stat-card">
+            <div class="stat-label" id="totalStudentsLabel">مجموع التلاميذ</div>
+            <div class="stat-value" id="total-students">0</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label" id="avgScoreLabel">المعدل العام</div>
+            <div class="stat-value" id="avg-score">0.00</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label" id="maxScoreLabel">أعلى معدل</div>
+            <div class="stat-value" id="max-score">0.00</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label" id="minScoreLabel">أدنى معدل</div>
+            <div class="stat-value" id="min-score">0.00</div>
+        </div>
+    </div>
+
+    <div class="filter-section">
+        <h3 id="filterTitle">🔍 تصفية حسب الملاحظة</h3>
+        <div class="filter-buttons">
+            <button class="btn btn-success" id="excellentBtn" onclick="filterByObservation('excellent')">
+                🌟 <span id="excellentText">ممتاز</span>
+            </button>
+            <button class="btn btn-info" id="verygoodBtn" onclick="filterByObservation('verygood')">
+                👍 <span id="verygoodText">جيد جداً</span>
+            </button>
+            <button class="btn btn-warning" id="goodBtn" onclick="filterByObservation('good')">
+                😊 <span id="goodText">جيد</span>
+            </button>
+            <button class="btn btn-secondary" id="averageBtn" onclick="filterByObservation('average')">
+                🔶 <span id="averageText">متوسط</span>
+            </button>
+            <button class="btn btn-danger" id="poorBtn" onclick="filterByObservation('poor')">
+                ⚠️ <span id="poorText">غير كافي</span>
+            </button>
+            <button class="btn btn-primary" id="resetBtn" onclick="resetFilters()">🔄 <span id="resetText">إعادة تعيين</span></button>
+        </div>
+    </div>
+
+    <div class="controls">
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="🔍 ابحث..." oninput="searchStudents()">
+        </div>
+        <button class="btn btn-success" id="exportBtn" onclick="exportToCSV()">📥 <span id="exportText">تصدير</span></button>
+        <button class="btn btn-success" id="printBtn" onclick="window.print()">🖨️ <span id="printText">طباعة</span></button>
+    </div>
+
+    <div class="add-student-section">
+        <h3 id="addStudentTitle">➕ إضافة تلميذ جديد</h3>
+        <form onsubmit="addStudent(event)">
+            <div class="form-row">
+                <input type="text" id="new-lastname" class="form-input" placeholder="اللقب" required>
+                <input type="text" id="new-firstname" class="form-input" placeholder="الاسم" required>
+                <button class="btn btn-primary" id="addStudentBtn" type="submit">إضافة</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr id="tableHeader">
+                    <th>#</th>
+                    <th id="th-lastname">اللقب</th>
+                    <th id="th-firstname">الاسم</th>
+                    <th id="th-oral">الشفوي</th>
+                    <th id="th-reading">القراءة</th>
+                    <th id="th-writing">الكتابة</th>
+                    <th id="th-exam">الفرض</th>
+                    <th id="th-average">المعدل</th>
+                    <th id="th-observation">الملاحظة</th>
+                    <th id="th-actions">الإجراءات</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+        <div id="noResults" class="no-results" style="display:none;">
+            <span id="noResultsText">📭 لا توجد بيانات لعرضها</span><br>
+            <small id="noResultsHint">يرجى اختيار قسم أو إضافة تلاميذ جدد</small>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p id="footerText">✨ نظام إدارة النقاط المدرسية | جميع الحقوق محفوظة © 2025</p>
+        <p><span id="printDateLabel">تاريخ الطباعة:</span> <span id="printDate"></span></p>
+    </div>
+</div>
+
+<script>
+const STORAGE_KEY = 'studentsGradesSystem';
+const SCHOOL_SETTINGS_KEY = 'schoolSettings';
+const CLASSES_KEY = 'allClasses';
+const LANGUAGE_KEY = 'selectedLanguage';
+const TERM_KEY = 'selectedTerm';
+
+let allClassesData = {};
+let allClassesList = [];
+let currentClass = '';
+let currentTerm = 'term3';
+let currentLanguage = 'ar';
+let studentsData = [];
+let filteredData = [];
+
+// Complete translations object with observations
+const translations = {
+    ar: {
+        mainTitle: '📊 نظام إدارة النقاط المدرسية',
+        headerSubtitle: 'السنة الدراسية 2024/2025',
+        termLabel: '📅 الفصل الدراسي:',
+        term1: 'الفصل الأول',
+        term2: 'الفصل الثاني',
+        term3: 'الفصل الثالث',
+        settingsTitle: '⚙️ إعدادات المدرسة',
+        schoolCountry: 'الدولة',
+        schoolMinistry: 'الوزارة',
+        schoolDirectorate: 'المديرية',
+        schoolName: 'اسم المدرسة',
+        saveSettingsBtn: '💾 حفظ الإعدادات',
+        classManagementTitle: '🏫 إدارة الأقسام والأفواج',
+        selectClassOption: '-- اختر القسم --',
+        deleteClassBtn: '🗑️ حذف القسم الحالي',
+        newClassName: 'اسم القسم الجديد',
+        addClassBtn: '➕ إضافة قسم جديد',
+        totalStudentsLabel: 'مجموع التلاميذ',
+        avgScoreLabel: 'المعدل العام',
+        maxScoreLabel: 'أعلى معدل',
+        minScoreLabel: 'أدنى معدل',
+        filterTitle: '🔍 تصفية حسب الملاحظة',
+        excellentText: 'ممتاز',
+        verygoodText: 'جيد جداً',
+        goodText: 'جيد',
+        averageText: 'متوسط',
+        poorText: 'غير كافي',
+        resetText: 'إعادة تعيين',
+        searchInput: '🔍 ابحث...',
+        exportText: 'تصدير',
+        printText: 'طباعة',
+        addStudentTitle: '➕ إضافة تلميذ جديد',
+        lastname: 'اللقب',
+        firstname: 'الاسم',
+        addStudentBtn: 'إضافة',
+        thLastname: 'اللقب',
+        thFirstname: 'الاسم',
+        thOral: 'الشفوي',
+        thReading: 'القراءة',
+        thWriting: 'الكتابة',
+        thExam: 'الفرض',
+        thAverage: 'المعدل',
+        thObservation: 'الملاحظة',
+        thActions: 'الإجراءات',
+        noResultsText: '📭 لا توجد بيانات لعرضها',
+        noResultsHint: 'يرجى اختيار قسم أو إضافة تلاميذ جدد',
+        footerText: '✨ نظام إدارة النقاط المدرسية | جميع الحقوق محفوظة © 2025',
+        printDateLabel: 'تاريخ الطباعة:',
+        editBtn: 'تعديل',
+        deleteBtn: 'حذف',
+        settingsSaved: 'تم حفظ إعدادات المدرسة بنجاح!',
+        settingsError: 'حدث خطأ في حفظ الإعدادات',
+        enterClassName: 'يرجى إدخال اسم القسم',
+        classExists: 'هذا القسم موجود بالفعل!',
+        classAdded: 'تم إضافة القسم بنجاح!',
+        confirmDeleteClass: 'هل أنت متأكد من حذف القسم',
+        allDataDeleted: 'سيتم حذف جميع البيانات المرتبطة به!',
+        classDeleted: 'تم حذف القسم بنجاح!',
+        noClassSelected: 'لم يتم اختيار أي قسم',
+        selectClassFirst: 'يرجى اختيار قسم أولاً',
+        enterNames: 'يرجى إدخال اللقب والاسم',
+        studentAdded: 'تم إضافة التلميذ بنجاح!',
+        editLastname: 'تعديل اللقب:',
+        editFirstname: 'تعديل الاسم:',
+        confirmDeleteStudent: 'هل أنت متأكد من حذف هذا التلميذ؟',
+        studentDeleted: 'تم حذف التلميذ بنجاح!',
+        noDataToExport: 'لا توجد بيانات للتصدير',
+        invalidScore: 'يرجى إدخال قيمة بين 0 و 10',
+        obs_excellent: 'ممتاز',
+        obs_verygood: 'جيد جداً',
+        obs_good: 'جيد',
+        obs_average: 'متوسط',
+        obs_poor: 'غير كافي'
+    },
+    fr: {
+        mainTitle: '📊 Système de Gestion des Notes Scolaires',
+        headerSubtitle: 'Année Scolaire 2024/2025',
+        termLabel: '📅 Trimestre:',
+        term1: 'Premier Trimestre',
+        term2: 'Deuxième Trimestre',
+        term3: 'Troisième Trimestre',
+        settingsTitle: '⚙️ Paramètres de l\'École',
+        schoolCountry: 'Pays',
+        schoolMinistry: 'Ministère',
+        schoolDirectorate: 'Direction',
+        schoolName: 'Nom de l\'École',
+        saveSettingsBtn: '💾 Enregistrer',
+        classManagementTitle: '🏫 Gestion des Classes',
+        selectClassOption: '-- Choisir la Classe --',
+        deleteClassBtn: '🗑️ Supprimer la Classe',
+        newClassName: 'Nom de la nouvelle classe',
+        addClassBtn: '➕ Ajouter une Classe',
+        totalStudentsLabel: 'Total Élèves',
+        avgScoreLabel: 'Moyenne Générale',
+        maxScoreLabel: 'Note Max',
+        minScoreLabel: 'Note Min',
+        filterTitle: '🔍 Filtrer par Observation',
+        excellentText: 'Excellent',
+        verygoodText: 'Très Bien',
+        goodText: 'Bien',
+        averageText: 'Moyen',
+        poorText: 'Insuffisant',
+        resetText: 'Réinitialiser',
+        searchInput: '🔍 Rechercher...',
+        exportText: 'Exporter',
+        printText: 'Imprimer',
+        addStudentTitle: '➕ Ajouter un Élève',
+        lastname: 'Nom',
+        firstname: 'Prénom',
+        addStudentBtn: 'Ajouter',
+        thLastname: 'Nom',
+        thFirstname: 'Prénom',
+        thOral: 'Oral',
+        thReading: 'Lecture',
+        thWriting: 'Écriture',
+        thExam: 'Examen',
+        thAverage: 'Moyenne',
+        thObservation: 'Observation',
+        thActions: 'Actions',
+        noResultsText: '📭 Aucune Donnée',
+        noResultsHint: 'Veuillez choisir une classe ou ajouter des élèves',
+        footerText: '✨ Système de Gestion des Notes | Tous Droits Réservés © 2025',
+        printDateLabel: 'Date d\'Impression:',
+        editBtn: 'Modifier',
+        deleteBtn: 'Supprimer',
+        settingsSaved: 'Paramètres enregistrés avec succès!',
+        settingsError: 'Erreur lors de l\'enregistrement',
+        enterClassName: 'Veuillez entrer le nom de la classe',
+        classExists: 'Cette classe existe déjà!',
+        classAdded: 'Classe ajoutée avec succès!',
+        confirmDeleteClass: 'Êtes-vous sûr de supprimer la classe',
+        allDataDeleted: 'Toutes les données seront supprimées!',
+        classDeleted: 'Classe supprimée avec succès!',
+        noClassSelected: 'Aucune classe sélectionnée',
+        selectClassFirst: 'Veuillez d\'abord choisir une classe',
+        enterNames: 'Veuillez entrer le nom et le prénom',
+        studentAdded: 'Élève ajouté avec succès!',
+        editLastname: 'Modifier le nom:',
+        editFirstname: 'Modifier le prénom:',
+        confirmDeleteStudent: 'Êtes-vous sûr de supprimer cet élève?',
+        studentDeleted: 'Élève supprimé avec succès!',
+        noDataToExport: 'Aucune donnée à exporter',
+        invalidScore: 'Veuillez entrer une valeur entre 0 et 10',
+        obs_excellent: 'Excellent',
+        obs_verygood: 'Très Bien',
+        obs_good: 'Bien',
+        obs_average: 'Moyen',
+        obs_poor: 'Insuffisant'
+    },
+    en: {
+        mainTitle: '📊 School Points Management System',
+        headerSubtitle: 'Academic Year 2024/2025',
+        termLabel: '📅 School Term:',
+        term1: 'First Term',
+        term2: 'Second Term',
+        term3: 'Third Term',
+        settingsTitle: '⚙️ School Settings',
+        schoolCountry: 'Country',
+        schoolMinistry: 'Ministry',
+        schoolDirectorate: 'Directorate',
+        schoolName: 'School Name',
+        saveSettingsBtn: '💾 Save Settings',
+        classManagementTitle: '🏫 Classes Management',
+        selectClassOption: '-- Select Class --',
+        deleteClassBtn: '🗑️ Delete Class',
+        newClassName: 'New class name',
+        addClassBtn: '➕ Add New Class',
+        totalStudentsLabel: 'Total Students',
+        avgScoreLabel: 'General Average',
+        maxScoreLabel: 'Highest Score',
+        minScoreLabel: 'Lowest Score',
+        filterTitle: '🔍 Filter by Observation',
+        excellentText: 'Excellent',
+        verygoodText: 'Very Good',
+        goodText: 'Good',
+        averageText: 'Average',
+        poorText: 'Not Enough',
+        resetText: 'Reset',
+        searchInput: '🔍 Search...',
+        exportText: 'Export',
+        printText: 'Print',
+        addStudentTitle: '➕ Add New Student',
+        lastname: 'Last Name',
+        firstname: 'First Name',
+        addStudentBtn: 'Add',
+        thLastname: 'Last Name',
+        thFirstname: 'First Name',
+        thOral: 'Oral',
+        thReading: 'Reading',
+        thWriting: 'Writing',
+        thExam: 'Exam',
+        thAverage: 'Average',
+        thObservation: 'Observation',
+        thActions: 'Actions',
+        noResultsText: '📭 No Data to Display',
+        noResultsHint: 'Please select a class or add new students',
+        footerText: '✨ School Points Management System | All Rights Reserved © 2025',
+        printDateLabel: 'Print Date:',
+        editBtn: 'Edit',
+        deleteBtn: 'Delete',
+        settingsSaved: 'Settings saved successfully!',
+        settingsError: 'Error saving settings',
+        enterClassName: 'Please enter class name',
+        classExists: 'This class already exists!',
+        classAdded: 'Class added successfully!',
+        confirmDeleteClass: 'Are you sure you want to delete class',
+        allDataDeleted: 'All associated data will be deleted!',
+        classDeleted: 'Class deleted successfully!',
+        noClassSelected: 'No class selected',
+        selectClassFirst: 'Please select a class first',
+        enterNames: 'Please enter last name and first name',
+        studentAdded: 'Student added successfully!',
+        editLastname: 'Edit last name:',
+        editFirstname: 'Edit first name:',
+        confirmDeleteStudent: 'Are you sure you want to delete this student?',
+        studentDeleted: 'Student deleted successfully!',
+        noDataToExport: 'No data to export',
+        invalidScore: 'Please enter a value between 0 and 10',
+        obs_excellent: 'Excellent',
+        obs_verygood: 'Very Good',
+        obs_good: 'Good',
+        obs_average: 'Average',
+        obs_poor: 'Not Enough'
+    }
+};
+
+window.onload = function() {
+    loadLanguage();
+    loadTerm();
+    loadSchoolSettings();
+    loadAllClasses();
+    updatePrintDate();
+};
+
+function loadLanguage() {
+    const saved = localStorage.getItem(LANGUAGE_KEY);
+    if (saved) {
+        currentLanguage = saved;
+        applyLanguage(currentLanguage);
+    }
+}
+
+function changeLanguage(lang) {
+    currentLanguage = lang;
+    localStorage.setItem(LANGUAGE_KEY, lang);
+    applyLanguage(lang);
+}
+
+function applyLanguage(lang) {
+    const html = document.documentElement;
+
+    if (lang === 'ar') {
+        html.setAttribute('dir', 'rtl');
+        html.setAttribute('lang', 'ar');
+    } else {
+        html.setAttribute('dir', 'ltr');
+        html.setAttribute('lang', lang);
+    }
+
+    const t = translations[lang];
+    document.getElementById('mainTitle').textContent = t.mainTitle;
+    document.getElementById('headerSubtitle').textContent = t.headerSubtitle;
+    document.getElementById('termLabel').textContent = t.termLabel;
+    document.getElementById('settingsTitle').textContent = t.settingsTitle;
+    document.getElementById('schoolCountry').placeholder = t.schoolCountry;
+    document.getElementById('schoolMinistry').placeholder = t.schoolMinistry;
+    document.getElementById('schoolDirectorate').placeholder = t.schoolDirectorate;
+    document.getElementById('schoolName').placeholder = t.schoolName;
+    document.getElementById('saveSettingsBtn').textContent = t.saveSettingsBtn;
+    document.getElementById('classManagementTitle').textContent = t.classManagementTitle;
+    document.getElementById('selectClassOption').textContent = t.selectClassOption;
+    document.getElementById('deleteClassBtn').textContent = t.deleteClassBtn;
+    document.getElementById('newClassName').placeholder = t.newClassName;
+    document.getElementById('addClassBtn').textContent = t.addClassBtn;
+    document.getElementById('totalStudentsLabel').textContent = t.totalStudentsLabel;
+    document.getElementById('avgScoreLabel').textContent = t.avgScoreLabel;
+    document.getElementById('maxScoreLabel').textContent = t.maxScoreLabel;
+    document.getElementById('minScoreLabel').textContent = t.minScoreLabel;
+    document.getElementById('filterTitle').textContent = t.filterTitle;
+    document.getElementById('excellentText').textContent = t.excellentText;
+    document.getElementById('verygoodText').textContent = t.verygoodText;
+    document.getElementById('goodText').textContent = t.goodText;
+    document.getElementById('averageText').textContent = t.averageText;
+    document.getElementById('poorText').textContent = t.poorText;
+    document.getElementById('resetText').textContent = t.resetText;
+    document.getElementById('searchInput').placeholder = t.searchInput;
+    document.getElementById('exportText').textContent = t.exportText;
+    document.getElementById('printText').textContent = t.printText;
+    document.getElementById('addStudentTitle').textContent = t.addStudentTitle;
+    document.getElementById('new-lastname').placeholder = t.lastname;
+    document.getElementById('new-firstname').placeholder = t.firstname;
+    document.getElementById('addStudentBtn').textContent = t.addStudentBtn;
+    document.getElementById('th-lastname').textContent = t.thLastname;
+    document.getElementById('th-firstname').textContent = t.thFirstname;
+    document.getElementById('th-oral').textContent = t.thOral;
+    document.getElementById('th-reading').textContent = t.thReading;
+    document.getElementById('th-writing').textContent = t.thWriting;
+    document.getElementById('th-exam').textContent = t.thExam;
+    document.getElementById('th-average').textContent = t.thAverage;
+    document.getElementById('th-observation').textContent = t.thObservation;
+    document.getElementById('th-actions').textContent = t.thActions;
+    document.getElementById('noResultsText').textContent = t.noResultsText;
+    document.getElementById('noResultsHint').textContent = t.noResultsHint;
+    document.getElementById('footerText').textContent = t.footerText;
+    document.getElementById('printDateLabel').textContent = t.printDateLabel;
+
+    updateTermSelectorText();
+
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.getAttribute('data-lang') === lang) {
+            btn.classList.add('active');
+        }
+    });
+
+    if (filteredData.length > 0) {
+        displayTable(filteredData);
+    } else if (studentsData.length > 0) {
+        displayTable(studentsData);
+    }
+
+    updatePrintDate();
+}
+
+function updateTermSelectorText() {
+    const selector = document.getElementById('termSelector');
+    const options = selector.querySelectorAll('option');
+    const t = translations[currentLanguage];
+
+    options[0].textContent = t.term1;
+    options[1].textContent = t.term2;
+    options[2].textContent = t.term3;
+}
+
+function loadTerm() {
+    const saved = localStorage.getItem(TERM_KEY);
+    if (saved) {
+        currentTerm = saved;
+        document.getElementById('termSelector').value = currentTerm;
+    }
+}
+
+function switchTerm() {
+    const selector = document.getElementById('termSelector');
+    currentTerm = selector.value;
+    localStorage.setItem(TERM_KEY, currentTerm);
+    loadAllClasses();
+}
+
+function getStorageKey() {
+    return `${STORAGE_KEY}_${currentTerm}`;
+}
+
+function getClassesKey() {
+    return `${CLASSES_KEY}_${currentTerm}`;
+}
+
+function loadSchoolSettings() {
+    try {
+        const saved = localStorage.getItem(SCHOOL_SETTINGS_KEY);
+        if (saved) {
+            const settings = JSON.parse(saved);
+            document.getElementById('schoolCountry').value = settings.country || '';
+            document.getElementById('schoolMinistry').value = settings.ministry || '';
+            document.getElementById('schoolDirectorate').value = settings.directorate || '';
+            document.getElementById('schoolName').value = settings.name || '';
+        }
+    } catch (e) {}
+}
+
+function saveSchoolSettings() {
+    const settings = {
+        country: document.getElementById('schoolCountry').value,
+        ministry: document.getElementById('schoolMinistry').value,
+        directorate: document.getElementById('schoolDirectorate').value,
+        name: document.getElementById('schoolName').value
+    };
+    try {
+        localStorage.setItem(SCHOOL_SETTINGS_KEY, JSON.stringify(settings));
+        alert('✅ ' + translations[currentLanguage].settingsSaved);
+    } catch (e) { 
+        alert('❌ ' + translations[currentLanguage].settingsError); 
+    }
+}
+
+function loadAllClasses() {
+    try {
+        const savedClasses = localStorage.getItem(getClassesKey());
+        if (savedClasses) allClassesList = JSON.parse(savedClasses);
+        else allClassesList = [];
+
+        const savedData = localStorage.getItem(getStorageKey());
+        if (savedData) allClassesData = JSON.parse(savedData);
+        else allClassesData = {};
+
+        updateClassSelector();
+        updateClassesList();
+
+        if (allClassesList.length > 0 && !currentClass) {
+            currentClass = allClassesList[0];
+            document.getElementById('classSelector').value = currentClass;
+            switchClass();
+        } else displayNoData();
+    } catch (e) {
+        allClassesList = [];
+        allClassesData = {};
+        updateClassSelector();
+        displayNoData();
+    }
+}
+
+function saveAllClasses() {
+    try {
+        localStorage.setItem(getClassesKey(), JSON.stringify(allClassesList));
+        localStorage.setItem(getStorageKey(), JSON.stringify(allClassesData));
+    } catch (e) { 
+        alert('❌ ' + translations[currentLanguage].settingsError); 
+    }
+}
+
+function addClass() {
+    const input = document.getElementById('newClassName');
+    const className = input.value.trim();
+    if (!className) { 
+        alert('⚠️ ' + translations[currentLanguage].enterClassName); 
+        return; 
+    }
+    if (allClassesList.includes(className)) { 
+        alert('⚠️ ' + translations[currentLanguage].classExists); 
+        return; 
+    }
+    allClassesList.push(className);
+    allClassesData[className] = [];
+    saveAllClasses();
+    updateClassSelector();
+    updateClassesList();
+    document.getElementById('classSelector').value = className;
+    currentClass = className;
+    switchClass();
+    input.value = '';
+    alert('✅ ' + translations[currentLanguage].classAdded);
+}
+
+function deleteCurrentClass() {
+    if (!currentClass) { 
+        alert('⚠️ ' + translations[currentLanguage].noClassSelected); 
+        return; 
+    }
+    if (confirm(translations[currentLanguage].confirmDeleteClass + ' "' + currentClass + '"?\n' + translations[currentLanguage].allDataDeleted)) {
+        allClassesList = allClassesList.filter(c => c !== currentClass);
+        delete allClassesData[currentClass];
+        saveAllClasses();
+        currentClass = '';
+        updateClassSelector();
+        updateClassesList();
+        displayNoData();
+        alert('✅ ' + translations[currentLanguage].classDeleted);
+    }
+}
+
+function updateClassSelector() {
+    const selector = document.getElementById('classSelector');
+    selector.innerHTML = '<option value="" id="selectClassOption">' + translations[currentLanguage].selectClassOption + '</option>';
+    allClassesList.forEach(className => {
+        const opt = document.createElement('option');
+        opt.value = className;
+        opt.textContent = className;
+        selector.appendChild(opt);
+    });
+}
+
+function updateClassesList() {
+    const list = document.getElementById('classesList');
+    list.innerHTML = '';
+    allClassesList.forEach(className => {
+        const tag = document.createElement('div');
+        tag.className = 'class-tag';
+        tag.innerHTML = `${className} <button onclick="deleteClassTag('${className}')">×</button>`;
+        list.appendChild(tag);
+    });
+}
+
+function deleteClassTag(className) {
+    if (confirm(translations[currentLanguage].confirmDeleteClass + ' "' + className + '"?\n' + translations[currentLanguage].allDataDeleted)) {
+        allClassesList = allClassesList.filter(c => c !== className);
+        delete allClassesData[className];
+        if (currentClass === className) {
+            currentClass = '';
+            displayNoData();
+        }
+        saveAllClasses();
+        updateClassSelector();
+        updateClassesList();
+        alert('✅ ' + translations[currentLanguage].classDeleted);
+    }
+}
+
+function switchClass() {
+    const selector = document.getElementById('classSelector');
+    currentClass = selector.value;
+    if (!currentClass) { 
+        displayNoData(); 
+        return; 
+    }
+    studentsData = allClassesData[currentClass] || [];
+    filteredData = [...studentsData];
+    displayTable(filteredData);
+    updateStats();
+}
+
+function addStudent(event) {
+    event.preventDefault();
+    if (!currentClass) { 
+        alert('⚠️ ' + translations[currentLanguage].selectClassFirst); 
+        return; 
+    }
+    const lastname = document.getElementById('new-lastname').value.trim();
+    const firstname = document.getElementById('new-firstname').value.trim();
+    if (!lastname || !firstname) { 
+        alert('⚠️ ' + translations[currentLanguage].enterNames); 
+        return; 
+    }
+    const newStudent = {
+        id: Date.now(),
+        lastname: lastname,
+        firstname: firstname,
+        oral: 0,
+        reading: 0,
+        writing: 0,
+        exam: 0
+    };
+    studentsData.push(newStudent);
+    allClassesData[currentClass] = studentsData;
+    saveAllClasses();
+    filteredData = [...studentsData];
+    displayTable(filteredData);
+    updateStats();
+    document.getElementById('new-lastname').value = '';
+    document.getElementById('new-firstname').value = '';
+    alert('✅ ' + translations[currentLanguage].studentAdded);
+}
+
+function editStudent(id) {
+    const student = studentsData.find(s => s.id === id);
+    if (!student) return;
+    const newLastname = prompt(translations[currentLanguage].editLastname, student.lastname);
+    if (newLastname !== null && newLastname.trim()) {
+        student.lastname = newLastname.trim();
+    }
+    const newFirstname = prompt(translations[currentLanguage].editFirstname, student.firstname);
+    if (newFirstname !== null && newFirstname.trim()) {
+        student.firstname = newFirstname.trim();
+    }
+    allClassesData[currentClass] = studentsData;
+    saveAllClasses();
+    filteredData = [...studentsData];
+    displayTable(filteredData);
+}
+
+function deleteStudent(id) {
+    if (confirm(translations[currentLanguage].confirmDeleteStudent)) {
+        studentsData = studentsData.filter(s => s.id !== id);
+        allClassesData[currentClass] = studentsData;
+        saveAllClasses();
+        filteredData = [...studentsData];
+        displayTable(filteredData);
+        updateStats();
+        alert('✅ ' + translations[currentLanguage].studentDeleted);
+    }
+}
+
+function updateScore(id, field, element) {
+    const value = parseFloat(element.textContent);
+    if (isNaN(value) || value < 0 || value > 10) {
+        alert('⚠️ ' + translations[currentLanguage].invalidScore);
+        element.textContent = '0.00';
+        return;
+    }
+    const student = studentsData.find(s => s.id === id);
+    if (student) {
+        student[field] = value;
+        allClassesData[currentClass] = studentsData;
+        saveAllClasses();
+        filteredData = [...studentsData];
+        displayTable(filteredData);
+        updateStats();
+    }
+}
+
+function calculateAverage(student) {
+    return ((student.oral + student.reading + student.writing + student.exam) / 4).toFixed(2);
+}
+
+function getObservation(avg) {
+    const t = translations[currentLanguage];
+    let obsType, obsText, obsClass, obsIcon;
+
+    if (avg >= 9) {
+        obsType = 'excellent';
+        obsText = t.obs_excellent;
+        obsClass = 'obs-excellent';
+        obsIcon = '🌟';
+    } else if (avg >= 7) {
+        obsType = 'verygood';
+        obsText = t.obs_verygood;
+        obsClass = 'obs-verygood';
+        obsIcon = '👍';
+    } else if (avg >= 5) {
+        obsType = 'good';
+        obsText = t.obs_good;
+        obsClass = 'obs-good';
+        obsIcon = '😊';
+    } else if (avg >= 3) {
+        obsType = 'average';
+        obsText = t.obs_average;
+        obsClass = 'obs-average';
+        obsIcon = '🔶';
+    } else {
+        obsType = 'poor';
+        obsText = t.obs_poor;
+        obsClass = 'obs-poor';
+        obsIcon = '⚠️';
+    }
+
+    return {
+        type: obsType,
+        text: obsText,
+        class: obsClass,
+        icon: obsIcon
+    };
+}
+
+function displayTable(data) {
+    const tbody = document.getElementById('tableBody');
+    const noResults = document.getElementById('noResults');
+    const t = translations[currentLanguage];
+
+    if (!data || data.length === 0) {
+        tbody.innerHTML = '';
+        noResults.style.display = 'block';
+        return;
+    }
+
+    noResults.style.display = 'none';
+    tbody.innerHTML = '';
+
+    data.forEach((student, index) => {
+        const avg = calculateAverage(student);
+        const obs = getObservation(parseFloat(avg));
+
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td><strong>${index + 1}</strong></td>
+            <td class="name-cell">${student.lastname}</td>
+            <td class="name-cell">${student.firstname}</td>
+            <td>
+                <div class="editable-score" 
+                     contenteditable="true" 
+                     onblur="updateScore(${student.id}, 'oral', this)"
+                     onkeypress="if(event.key==='Enter'){this.blur();return false;}">${student.oral.toFixed(2)}</div>
+            </td>
+            <td>
+                <div class="editable-score" 
+                     contenteditable="true" 
+                     onblur="updateScore(${student.id}, 'reading', this)"
+                     onkeypress="if(event.key==='Enter'){this.blur();return false;}">${student.reading.toFixed(2)}</div>
+            </td>
+            <td>
+                <div class="editable-score" 
+                     contenteditable="true" 
+                     onblur="updateScore(${student.id}, 'writing', this)"
+                     onkeypress="if(event.key==='Enter'){this.blur();return false;}">${student.writing.toFixed(2)}</div>
+            </td>
+            <td>
+                <div class="editable-score" 
+                     contenteditable="true" 
+                     onblur="updateScore(${student.id}, 'exam', this)"
+                     onkeypress="if(event.key==='Enter'){this.blur();return false;}">${student.exam.toFixed(2)}</div>
+            </td>
+            <td><strong>${avg}</strong></td>
+            <td>
+                <span class="obs-modern ${obs.class}" data-obs-type="${obs.type}">
+                    <i>${obs.icon}</i> ${obs.text}
+                </span>
+            </td>
+            <td>
+                <div class="action-btns">
+                    <button class="action-btn btn-edit" onclick="editStudent(${student.id})">${t.editBtn}</button>
+                    <button class="action-btn btn-delete" onclick="deleteStudent(${student.id})">${t.deleteBtn}</button>
+                </div>
+            </td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+function displayNoData() {
+    const tbody = document.getElementById('tableBody');
+    const noResults = document.getElementById('noResults');
+    tbody.innerHTML = '';
+    noResults.style.display = 'block';
+    studentsData = [];
+    filteredData = [];
+    updateStats();
+}
+
+function updateStats() {
+    const totalElement = document.getElementById('total-students');
+    const avgElement = document.getElementById('avg-score');
+    const maxElement = document.getElementById('max-score');
+    const minElement = document.getElementById('min-score');
+
+    if (studentsData.length === 0) {
+        totalElement.textContent = '0';
+        avgElement.textContent = '0.00';
+        maxElement.textContent = '0.00';
+        minElement.textContent = '0.00';
+        return;
+    }
+
+    const averages = studentsData.map(s => parseFloat(calculateAverage(s)));
+    const total = studentsData.length;
+    const avg = (averages.reduce((a, b) => a + b, 0) / total).toFixed(2);
+    const max = Math.max(...averages).toFixed(2);
+    const min = Math.min(...averages).toFixed(2);
+
+    totalElement.textContent = total;
+    avgElement.textContent = avg;
+    maxElement.textContent = max;
+    minElement.textContent = min;
+}
+
+function searchStudents() {
+    const query = document.getElementById('searchInput').value.toLowerCase().trim();
+    if (!query) {
+        filteredData = [...studentsData];
+    } else {
+        filteredData = studentsData.filter(s => 
+            s.lastname.toLowerCase().includes(query) || 
+            s.firstname.toLowerCase().includes(query)
+        );
+    }
+    displayTable(filteredData);
+}
+
+function filterByObservation(obsType) {
+    filteredData = studentsData.filter(student => {
+        const avg = parseFloat(calculateAverage(student));
+        const obs = getObservation(avg);
+        return obs.type === obsType;
+    });
+    displayTable(filteredData);
+}
+
+function resetFilters() {
+    document.getElementById('searchInput').value = '';
+    filteredData = [...studentsData];
+    displayTable(filteredData);
+}
+
+function exportToCSV() {
+    if (!filteredData || filteredData.length === 0) {
+        alert('⚠️ ' + translations[currentLanguage].noDataToExport);
+        return;
+    }
+
+    const t = translations[currentLanguage];
+    let csv = `${t.thLastname},${t.thFirstname},${t.thOral},${t.thReading},${t.thWriting},${t.thExam},${t.thAverage},${t.thObservation}\n`;
+
+    filteredData.forEach(student => {
+        const avg = calculateAverage(student);
+        const obs = getObservation(parseFloat(avg));
+        csv += `${student.lastname},${student.firstname},${student.oral},${student.reading},${student.writing},${student.exam},${avg},${obs.text}\n`;
+    });
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `${currentClass}_${currentTerm}_students.csv`;
+    link.click();
+}
+
+function updatePrintDate() {
+    const now = new Date();
+    const dateStr = now.toLocaleDateString(currentLanguage === 'ar' ? 'ar-DZ' : currentLanguage === 'fr' ? 'fr-FR' : 'en-US');
+    document.getElementById('printDate').textContent = dateStr;
+}
+</script>
+</body>
+</html>
